@@ -1,7 +1,7 @@
 package br.edu.ifrs.miguelzk.interfaces;
 
-import br.edu.ifrs.miguelzk.application.dto.VacinaRequestDTO;
-import br.edu.ifrs.miguelzk.application.service.VacinaService;
+import br.edu.ifrs.miguelzk.application.dto.ImunizanteRequestDTO;
+import br.edu.ifrs.miguelzk.application.service.ImunizanteService;
 import br.edu.ifrs.miguelzk.infrastructure.exception.ObjetoNaoEncontradoException;
 import io.quarkus.vertx.http.runtime.devmode.ResourceNotFoundData;
 import jakarta.annotation.security.PermitAll;
@@ -11,36 +11,48 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
-@Path("/api/vacina")
-public class VacinaController {
+@Path("/api/imunizante")
+public class ImunizanteController {
 
     @Inject
     ResourceNotFoundData resourceNotFoundData;
     @Inject
-    private VacinaService vacinaService;
+    private ImunizanteService imunizanteService;
 
     @POST
 //  @RolesAllowed("admin")
     @PermitAll
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response create(@RequestBody VacinaRequestDTO request) {
-        return Response.ok().entity(vacinaService.create(request)).build();
+    public Response create(@RequestBody ImunizanteRequestDTO request) {
+        try {
+            return Response.ok().entity(imunizanteService.create(request)).build();
+        } catch (ObjetoNaoEncontradoException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateVacina(@PathParam("id") Long id, @RequestBody VacinaRequestDTO request) {
-        return Response.ok().entity(vacinaService.updateVacina(id, request)).build();
+    public Response updateImunizante(@PathParam("id") Long id, @RequestBody ImunizanteRequestDTO request) {
+        try {
+            return Response.ok().entity(imunizanteService.updateImunizante(id, request)).build();
+        } catch (ObjetoNaoEncontradoException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response findAll() {
         try {
-            return Response.ok().entity(vacinaService.findVacinaAll()).build();
+            return Response.ok().entity(imunizanteService.findImunizanteAll()).build();
         } catch (Exception e) {
             e.printStackTrace();
             return Response.serverError().build();
@@ -52,7 +64,7 @@ public class VacinaController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response findById(@PathParam("id") Long id) {
         try {
-            return Response.ok().entity(vacinaService.findVacinaById(id)).build();
+            return Response.ok().entity(imunizanteService.findImunizanteById(id)).build();
         } catch (NotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e) {
@@ -61,23 +73,12 @@ public class VacinaController {
         }
     }
 
-/*    @GET
-    @Path("/carteiravacinacao")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response carteiraDeVacinacao(@QueryParam("idAnimal") Long idAnimal) {
-        try {
-            return Response.ok().entity(vacinaService.carteiraDeVacinacao(idAnimal)).build();
-        } catch (ObjetoNaoEncontradoException e) {
-            return Response.status(404).build();
-        }
-    }*/
-
     @DELETE
 //  @RolesAllowed("admin")
     @PermitAll
-    public Response deleteVacinaById(Long id) {
+    public Response deleteImunizanteById(Long id) {
         try {
-            vacinaService.deleteVacinaById(id);
+            imunizanteService.deleteImunizanteById(id);
             return Response.ok().build();
         } catch (NotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
